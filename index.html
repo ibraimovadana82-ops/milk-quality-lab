@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Лабораторная работа № 7 — Оценка качества молока</title>
+<style>
+:root{--blue:#155e75;--teal:#0f766e;--bg:#f3f7f8;--card:#fff;--line:#d8e3e7;--ink:#17313b;--muted:#607781}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 Arial,sans-serif}
+header{background:linear-gradient(120deg,#164e63,#0f766e);color:white;padding:28px max(18px,calc((100% - 980px)/2))}
+header h1{font-size:clamp(24px,4vw,36px);margin:8px 0}header p{margin:5px 0;color:#e0f2f1}
+main{max-width:980px;margin:22px auto;padding:0 14px 40px}.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;margin:14px 0;box-shadow:0 2px 8px #17313b0a}
+h2{font-size:22px;margin:0 0 8px}h3{font-size:17px;margin:16px 0 8px}.muted,.hint{color:var(--muted);font-size:14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}
+label{display:block;font-weight:600;font-size:14px;margin:10px 0}input,select,textarea{display:block;width:100%;padding:11px;border:1px solid #bdcdd3;border-radius:8px;margin-top:5px;font:inherit;background:white;color:var(--ink)}
+button{border:1px solid var(--line);background:#f7fafb;color:var(--ink);padding:10px 14px;border-radius:9px;font-weight:700;cursor:pointer;margin:5px 5px 0 0}
+button.primary{background:var(--blue);color:white;border-color:var(--blue)}button:hover{filter:brightness(.96)}
+.tabs{display:flex;gap:7px;overflow-x:auto;padding:4px 0 10px}.tabs button{white-space:nowrap}.tabs button.active{background:#dff3f1;border-color:#0f766e;color:#115e59}
+.panel{background:#f1f7f8;border:1px solid var(--line);border-radius:10px;padding:13px;margin:12px 0}
+.result{background:#e8f5f2;border:1px solid #9acfc1;border-radius:10px;padding:13px;margin-top:12px}
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:9px;margin:10px 0}.metric{background:#f1f7f8;padding:12px;border-radius:9px}.metric strong{display:block;font-size:22px}
+.hidden{display:none!important}.tube{width:38px;height:100px;border:2px solid #8499a3;border-top:0;border-radius:0 0 14px 14px;position:relative;overflow:hidden;margin:auto}.liquid{position:absolute;bottom:0;width:100%;height:65%;background:#2784d4}
+.filter{width:112px;height:112px;border:2px solid #b8a58a;border-radius:50%;background:#f3ead9;margin:10px auto;display:flex;align-content:center;justify-content:center;align-items:center;flex-wrap:wrap;gap:5px;padding:12px}.particle{width:7px;height:7px;background:#70583c;border-radius:50%}
+footer{text-align:center;color:var(--muted);font-size:12px;padding:20px}
+@media print{.tabs,button{display:none!important}body{background:white}.card{box-shadow:none;break-inside:avoid}}
+</style>
+</head>
+<body>
+<header><div>ПИЩЕВАЯ ХИМИЯ · ВИРТУАЛЬНАЯ ЛАБОРАТОРИЯ № 7</div><h1>Оценка качества молока и молочных продуктов</h1><p>Интерактивная учебная работа · 4 эксперимента · расчёты · журнал наблюдений · отчёт</p></header>
+<main>
+<section class="card">
+<h2>Паспорт лабораторной работы</h2>
+<div class="grid">
+<label>ФИО студента<input id="student" placeholder="Фамилия, имя, отчество"></label>
+<label>Учебная группа<input id="group" placeholder="Например, ХТ-24"></label>
+<label>Дата выполнения<input id="date" type="date"></label>
+<label>Исследуемый образец<select id="sample"><option>Сырое коровье молоко</option><option>Пастеризованное молоко</option><option>Козье молоко</option><option>Молоко после хранения</option></select></label>
+</div>
+<p class="muted"><b>Цель:</b> освоить методы определения физико-химических и санитарно-гигиенических показателей качества молока.</p>
+</section>
+<nav class="tabs" aria-label="Эксперименты">
+<button class="active" data-tab="0">1. Кислотность</button><button data-tab="1">2. Алкогольная проба</button><button data-tab="2">3. Редуктаза</button><button data-tab="3">4. Чистота</button><button data-tab="4">Итоговый отчёт</button>
+</nav>
+<section class="card page" data-page="0">
+<h2>Эксперимент 1. Определение кислотности</h2><p class="muted">Титрование 10 мл молока раствором NaOH концентрацией 0,1 н с фенолфталеином.</p>
+<div class="panel"><b>Виртуальное оборудование</b><div class="grid" style="text-align:center;margin-top:12px"><div>🧪<br>Коническая колба</div><div>│<br>Бюретка</div><div>💧<br>Пипетка</div></div><p class="hint">10 мл молока + 20 мл дистиллированной воды + 3 капли фенолфталеина.</p></div>
+<label>Объём израсходованного NaOH, мл<input id="naoh" type="number" min=".1" max="10" step=".1" value="1.8"></label>
+<button class="primary" id="titrate">Провести титрование</button><button id="resetAcid">Сбросить</button><div id="acidResult" class="hidden result"></div>
+<div class="panel"><b>Формула</b><p style="text-align:center;font-size:22px;font-weight:bold">X = V × 10</p><p class="hint">X — кислотность, °Т; V — объём 0,1 н NaOH, мл. Пересчёт на молочную кислоту: X × 0,009 г на 100 мл молока.</p></div>
+</section>
+<section class="card page hidden" data-page="1">
+<h2>Эксперимент 2. Алкогольная проба</h2><p class="muted">Оценка устойчивости белковой системы молока при смешивании равных объёмов молока и этанола.</p>
+<div class="panel" style="text-align:center"><div style="font-size:40px">🥛 + 💧</div><b>2 мл молока + 2 мл спирта</b></div>
+<div class="grid"><label>Концентрация этанола<select id="ethanol"><option>68</option><option>70</option><option>72</option><option>75</option><option selected>80</option></select></label>
+<label>Температура молока<select id="temp"><option selected>20</option><option>25</option></select></label></div>
+<label>Наблюдение<select id="flakes"><option value="none">Хлопья отсутствуют</option><option value="few">Отдельные хлопья</option><option value="many">Обильные хлопья</option></select></label>
+<button class="primary" id="alcoholTest">Смешать и исследовать</button><button id="resetAlcohol">Сбросить</button><div id="alcoholResult" class="hidden result"></div>
+<div class="panel"><b>Классификация по методичке</b><p>I группа — 80%; II — 75%; III — 72%; IV — 70%; V — 68%.</p><p class="hint">Для определения группы последовательно проверяют концентрации. В модели студент вводит наблюдение самостоятельно.</p></div>
+</section>
+<section class="card page hidden" data-page="2">
+<h2>Эксперимент 3. Редуктазная проба</h2><p class="muted">Оценка бактериальной обсеменённости по времени обесцвечивания метиленового синего.</p>
+<div class="panel"><div class="grid" style="text-align:center"><div><div class="tube"><div class="liquid"></div></div>До испытания</div><div><div class="tube"><div id="afterLiquid" class="liquid"></div></div>После испытания</div></div><p class="hint" style="text-align:center">Термостат: 38–40 °C</p></div>
+<label>Время до обесцвечивания<select id="reductTime"><option value="360">Более 5,5 часов</option><option value="180" selected>3 часа</option><option value="60">1 час</option><option value="10">10 минут</option></select></label>
+<label>Метод<select id="reductMethod"><option value="standard">Стандартный</option><option value="fast">Ускоренный (интервалы модели)</option></select></label>
+<button class="primary" id="reductTest">Запустить исследование</button><div id="reductResult" class="hidden result"></div>
+<div class="panel"><b>Принцип метода</b><p>Редуктаза микроорганизмов восстанавливает метиленовый синий в бесцветную лейкоформу. Чем быстрее обесцвечивание, тем выше предполагаемая бактериальная обсеменённость.</p></div>
+</section>
+<section class="card page hidden" data-page="3">
+<h2>Эксперимент 4. Определение чистоты молока</h2><p class="muted">Фильтрование 250 мл молока, предварительно подогретого до 35 °C.</p>
+<div class="panel" style="text-align:center"><div style="font-size:35px">🥛 → ⏳ → 🧪</div><b>Виртуальный фильтр</b><div class="filter" id="filter"></div><div class="hint" id="filterCaption">Ожидает фильтрования</div></div>
+<label>Количество механических частиц<select id="particles"><option value="0">0 частиц</option><option value="2">2 частицы</option><option value="8">8 частиц</option><option value="13">13 частиц</option><option value="20">Более 13, заметный осадок</option></select></label>
+<label>Цвет фильтра<select id="filterColor"><option value="normal">Нормальный</option><option value="changed">Изменённый</option></select></label>
+<button class="primary" id="filterTest">Провести фильтрование</button><div id="cleanResult" class="hidden result"></div>
+<div class="panel"><b>Критерии</b><p>I группа — до 2 частиц; II группа — до 13 частиц; III группа — заметный осадок. Изменение цвета фильтра означает третью группу.</p></div>
+</section>
+<section class="card page hidden" data-page="4">
+<h2>Итоговый лабораторный отчёт</h2><p id="progressText" class="muted">Выполнено: 0 из 4 экспериментов</p><div style="height:9px;background:#e1e9eb;border-radius:8px;overflow:hidden"><div id="progressBar" style="height:100%;width:0;background:#0f766e"></div></div>
+<div id="report" class="panel" style="margin-top:14px">Проведите эксперименты, чтобы заполнить отчёт.</div>
+<label>Вывод студента<textarea id="conclusion" rows="4" placeholder="Сформулируйте вывод по результатам исследований"></textarea></label>
+<button class="primary" id="buildReport">Обновить отчёт</button><button id="download">Скачать отчёт TXT</button><button id="print">Печать / сохранить PDF</button>
+<div class="panel"><h3>Контрольные вопросы</h3>
+<label>1. Что определяет кислотность молока?<select class="quiz" data-answer="b"><option value="">Выберите ответ</option><option value="a">Содержание жира</option><option value="b">Суммарную титруемую кислотность</option><option value="c">Содержание белка</option></select></label>
+<label>2. Почему возникают хлопья при алкогольной пробе?<select class="quiz" data-answer="c"><option value="">Выберите ответ</option><option value="a">Испарение воды</option><option value="b">Изменение жирности</option><option value="c">Нарушение устойчивости белковой системы</option></select></label>
+<label>3. Что означает быстрое обесцвечивание метиленового синего?<select class="quiz" data-answer="a"><option value="">Выберите ответ</option><option value="a">Повышенную бактериальную обсеменённость</option><option value="b">Отсутствие бактерий</option><option value="c">Высокую жирность</option></select></label>
+<label>4. Что выявляет фильтрование?<select class="quiz" data-answer="b"><option value="">Выберите ответ</option><option value="a">Белок</option><option value="b">Механические примеси</option><option value="c">Лактозу</option></select></label>
+<button class="primary" id="checkQuiz">Проверить ответы</button><div id="quizResult" class="hidden result"></div></div>
+</section>
+<section class="card"><b>Электронный журнал наблюдений</b><div id="journal" class="muted" style="margin-top:8px">Пока нет записей.</div><button id="clearAll" style="margin-top:12px">Очистить результаты и начать заново</button></section>
+<p class="hint">Важно: это учебная симуляция. Результаты не являются реальными лабораторными измерениями или официальной экспертизой молочной продукции.</p>
+</main><footer>Виртуальная лабораторная работа № 7 · Пищевая химия</footer>
+<script>
+(()=>{
+"use strict";
+const $=id=>document.getElementById(id);
+const S={acid:null,alcohol:null,reduct:null,clean:null,logs:[]};
+const fmt=n=>Number(n).toLocaleString('ru-RU',{maximumFractionDigits:3});
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const show=(id,s)=>{$(id).innerHTML=s;$(id).classList.remove('hidden')};
+const hide=id=>$(id).classList.add('hidden');
+function log(s){S.logs.push(s);renderJournal();progress()}
+function renderJournal(){$('journal').innerHTML=S.logs.length?S.logs.map((s,i)=>`<div style="padding:7px 0;border-bottom:1px solid #d8e3e7">${i+1}. ${esc(s)}</div>`).join(''):'Пока нет записей.'}
+function progress(){let n=[S.acid,S.alcohol,S.reduct,S.clean].filter(Boolean).length;$('progressText').textContent=`Выполнено: ${n} из 4 экспериментов`;$('progressBar').style.width=(n*25)+'%'}
+function tab(i){document.querySelectorAll('#milkLab .page').forEach((p,j)=>p.classList.toggle('hidden',i!==j));document.querySelectorAll('#milkLab [data-tab]').forEach((b,j)=>b.classList.toggle('active',i===j));if(i===4)report()}
+document.querySelectorAll('#milkLab [data-tab]').forEach(b=>b.addEventListener('click',()=>tab(Number(b.dataset.tab))));
+$('date').value=new Date().toISOString().slice(0,10);
+$('titrate').onclick=()=>{
+let v=Number($('naoh').value);if(!Number.isFinite(v)||v<=0||v>10){show('acidResult','Введите объём NaOH от 0,1 до 10 мл.');return}
+let x=v*10,m=x*.009,cls=x<=18?'Низкая кислотность':x<=21?'Ориентировочно нормальная кислотность':'Повышенная кислотность';
+S.acid={v,x,m,cls};show('acidResult',`<b>Результат титрования</b><div class="metrics"><div class="metric">Кислотность<strong>${fmt(x)} °Т</strong></div><div class="metric">Молочная кислота*<strong>${fmt(m)} г</strong></div></div>${cls}<p class="hint">*Пересчёт на 100 мл молока по коэффициенту из методички.</p>`);log(`Кислотность ${fmt(x)} °Т; NaOH ${fmt(v)} мл.`);
+};
+$('resetAcid').onclick=()=>{S.acid=null;$('naoh').value='1.8';hide('acidResult');progress()};
+$('alcoholTest').onclick=()=>{
+let c=Number($('ethanol').value),f=$('flakes').value,pass=f==='none',groups={80:'I',75:'II',72:'III',70:'IV',68:'V'};
+let result=pass?`${groups[c]} группа — проба выдержана`:'Проба не выдержана: обнаружены хлопья';
+S.alcohol={c,f,pass,result};show('alcoholResult',`<b>${result}</b><p>Концентрация этанола: ${c}%.</p><p>${pass?'Белковая система сохранила устойчивость.':'Наблюдается коагуляция белковой системы.'}</p><p class="hint">Для определения группы следует последовательно проверить концентрации спирта.</p>`);log(`Алкогольная проба ${c}%; ${pass?'хлопьев нет':'хлопья присутствуют'}.`);
+};
+$('resetAlcohol').onclick=()=>{S.alcohol=null;$('ethanol').value='80';$('flakes').value='none';hide('alcoholResult');progress()};
+$('reductTest').onclick=()=>{
+let t=Number($('reductTime').value),fast=$('reductMethod').value==='fast',cls,bacteria;
+if((!fast&&t>330)||(fast&&t>180)){cls='I класс — хорошее молоко';bacteria='до 0,5 млн/мл'}
+else if((!fast&&t>=120)||(fast&&t>=60)){cls='II класс — удовлетворительное молоко';bacteria='до 4 млн/мл'}
+else if((!fast&&t>=20)||(fast&&t>=8)){cls='III класс — плохое молоко';bacteria='до 20 млн/мл'}
+else{cls='IV класс — очень плохое молоко';bacteria='более 20 млн/мл'}
+S.reduct={t,fast,cls,bacteria};$('afterLiquid').style.background=t>330?'#2784d4':t>=120?'#a5c4df':t>=20?'#e2c58e':'#eee9df';
+show('reductResult',`<b>${cls}</b><p>Время: ${t===360?'более 5,5 часов':t+' минут'}.</p><p>Ориентировочное количество бактерий: ${bacteria}.</p><p class="hint">Ускоренный метод использует отдельные временные интервалы учебной модели. Это косвенная оценка, не прямой подсчёт КОЕ.</p>`);log(`Редуктазная проба: ${cls}; время ${t===360?'>5,5 ч':t+' мин'}.`);
+};
+$('filterTest').onclick=()=>{
+let n=Number($('particles').value),changed=$('filterColor').value==='changed',g=changed||n>13?3:n<=2?1:2,desc=['','Первая группа чистоты','Вторая группа чистоты','Третья группа чистоты'][g];
+$('filter').innerHTML='';for(let i=0;i<Math.min(n,35);i++){let p=document.createElement('span');p.className='particle';$('filter').appendChild(p)}
+$('filterCaption').textContent=`Частиц: ${n>13?'более 13':n}; цвет ${changed?'изменён':'нормальный'}`;
+S.clean={n,changed,g,desc};show('cleanResult',`<b>${desc}</b><p>Количество частиц: ${n>13?'более 13':n}.</p><p>Цвет фильтра: ${changed?'изменён':'нормальный'}.</p>`);log(`Чистота: ${desc}; частиц ${n>13?'>13':n}.`);
+};
+function report(){
+progress();let rows=[['Кислотность',S.acid?fmt(S.acid.x)+' °Т':'Не выполнено'],['Алкогольная проба',S.alcohol?S.alcohol.result:'Не выполнено'],['Редуктазная проба',S.reduct?S.reduct.cls:'Не выполнено'],['Чистота молока',S.clean?S.clean.desc:'Не выполнено']];
+$('report').innerHTML=`<div class="hint">ПРОТОКОЛ ЛАБОРАТОРНОЙ РАБОТЫ № 7</div><p><b>Студент:</b> ${esc($('student').value||'Не указан')}<br><b>Группа:</b> ${esc($('group').value||'Не указана')}<br><b>Дата:</b> ${esc($('date').value)}<br><b>Образец:</b> ${esc($('sample').value)}</p>${rows.map(r=>`<p style="padding:8px 0;border-bottom:1px solid #d8e3e7"><b>${r[0]}</b><br>${esc(r[1])}</p>`).join('')}<p><b>Заключение:</b> ${rows.every(r=>r[1]!=='Не выполнено')?'Все четыре испытания выполнены. Сопоставьте показатели с нормативными требованиями.':'Отчёт предварительный: выполните оставшиеся эксперименты.'}</p>`;
+}
+$('buildReport').onclick=report;
+function textReport(){return `ЛАБОРАТОРНАЯ РАБОТА № 7\nОЦЕНКА КАЧЕСТВА МОЛОКА И МОЛОЧНЫХ ПРОДУКТОВ\n\nСтудент: ${$('student').value}\nГруппа: ${$('group').value}\nДата: ${$('date').value}\nОбразец: ${$('sample').value}\n\nРЕЗУЛЬТАТЫ:\nКислотность: ${S.acid?fmt(S.acid.x)+' °Т':'Не выполнено'}\nАлкогольная проба: ${S.alcohol?S.alcohol.result:'Не выполнено'}\nРедуктазная проба: ${S.reduct?S.reduct.cls:'Не выполнено'}\nЧистота: ${S.clean?S.clean.desc:'Не выполнено'}\n\nНАБЛЮДЕНИЯ:\n${S.logs.join('\n')}\n\nВЫВОД СТУДЕНТА:\n${$('conclusion').value}\n\nУчебная симуляция, не реальные измерения.`}
+$('download').onclick=()=>{let blob=new Blob(['\ufeff'+textReport()],{type:'text/plain;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='Лабораторная работа 7.txt';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)};
+$('print').onclick=()=>{let w=window.open('','_blank');if(!w){alert('Разрешите всплывающие окна для печати.');return}w.document.write('<meta charset="utf-8"><title>Отчёт №7</title><pre style="font:14px Arial;white-space:pre-wrap">'+esc(textReport())+'</pre>');w.document.close();w.print()};
+$('checkQuiz').onclick=()=>{let qs=[...document.querySelectorAll('#milkLab .quiz')];if(qs.some(q=>!q.value)){show('quizResult','Ответьте на все четыре вопроса.');return}let score=qs.filter(q=>q.value===q.dataset.answer).length;show('quizResult',`<b>Результат: ${score} из 4 (${score*25}%)</b><p>${score===4?'Отлично!':score>=3?'Хороший результат.':'Повторите теорию и попробуйте ещё раз.'}</p>`)};
+$('clearAll').onclick=()=>{if(!confirm('Удалить все результаты и начать заново?'))return;Object.assign(S,{acid:null,alcohol:null,reduct:null,clean:null,logs:[]});['acidResult','alcoholResult','reductResult','cleanResult','quizResult'].forEach(hide);$('filter').innerHTML='';$('afterLiquid').style.background='#2784d4';$('naoh').value='1.8';$('ethanol').value='80';$('flakes').value='none';$('reductTime').value='360';$('reductMethod').value='standard';$('particles').value='0';$('filterColor').value='normal';$('conclusion').value='';document.querySelectorAll('#milkLab .quiz').forEach(q=>q.value='');renderJournal();progress();tab(0)};
+renderJournal();progress();
+})();
+</script>
+</body></html>
